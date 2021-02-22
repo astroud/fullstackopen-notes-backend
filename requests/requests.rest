@@ -1,2 +1,11 @@
 GET http://localhost:3001/api/notess/ HTTP/1.1
 content-type: application/json
+
+###
+PUT http://localhost:3001/api/notes/602c0c89ddf776544ad01496 HTTP/1.1
+content-type: application/json
+
+{
+    "content": "HTML is Easy (I am on server and now UPDATED)",
+    "important": false
+}

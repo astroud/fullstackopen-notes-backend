@@ -97,12 +97,8 @@ let notes = [
     return maxId + 1
   }
 
-  app.post('/api/notes', (request, response) => {
+  app.post('/api/notes', (request, response, next) => {
     const body = request.body
-  
-    if (body.content === undefined) {
-      return response.status(400).json({ error: 'content missing' })
-    }
   
     const note = new Note({
       content: body.content,
@@ -110,9 +106,13 @@ let notes = [
       date: new Date(),
     })
   
-    note.save().then(savedNote => {
-      response.json(savedNote)
-    })
+    note
+      .save()
+      .then(savedNote => savedNote.toJSON())
+      .then(savedAndFormattedNote => {
+        response.json(savedAndFormattedNote)
+      }) 
+      .catch(error => next(error)) 
   })
 
   const errorHandler = (error, request, response, next) => {
@@ -120,7 +120,9 @@ let notes = [
   
     if (error.name === 'CastError') {
       return response.status(400).send({ error: 'malformatted id' })
-    } 
+    } else if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message })
+    }
   
     next(error)
   }
